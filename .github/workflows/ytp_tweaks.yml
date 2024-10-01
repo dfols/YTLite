@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    name: 
+    name: Build YouTube Plus with Tweaks
     runs-on: macos-12
     permissions:
       contents: write
@@ -90,16 +90,25 @@ jobs:
           git checkout
           mv *.appex ${{ github.workspace }}
 
-      - name: Clone YouTubeHeader
+      - name: Clone YouTubeHeader and Create YTHeaders Symlink
         run: |
-          if [ -d "$THEOS/include/YouTubeHeader" ]; then
-            echo "YouTubeHeader exists. Pulling latest changes..."
-            cd $THEOS/include/YouTubeHeader
-            git pull
-          else
-            echo "YouTubeHeader does not exist. Cloning repository..."
-            cd $THEOS/include
+          THEOS_INCLUDE="$THEOS/include"
+          cd "$THEOS_INCLUDE"
+
+          # Clone YouTubeHeader if not present
+          if [ ! -d "YouTubeHeader" ]; then
             git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
+            echo "Cloned YouTubeHeader."
+          else
+            echo "YouTubeHeader already exists."
+          fi
+
+          # Create YTHeaders symlink if not present
+          if [ ! -e "YTHeaders" ]; then
+            ln -s YouTubeHeader YTHeaders
+            echo "Created symlink YTHeaders -> YouTubeHeader."
+          else
+            echo "YTHeaders symlink already exists."
           fi
         env:
           THEOS: ${{ github.workspace }}/theos
