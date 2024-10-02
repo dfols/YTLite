@@ -158,16 +158,6 @@ jobs:
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
 
-      - name: Clone IAmYouTube
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/IAmYouTube.git
-
-      - name: Clone YTHoldForSpeed
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/joshuaseltzer/YTHoldForSpeed.git
-
       - name: Clone YTSpeed
         run: |
           cd ${{ github.workspace }}
@@ -245,22 +235,6 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build IAmYouTube
-        run: |
-          cd ${{ github.workspace }}/IAmYouTube
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTHoldForSpeed
-        run: |
-          cd ${{ github.workspace }}/YTHoldForSpeed
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytholdforspeed.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
       - name: Build YTSpeed
         run: |
           cd ${{ github.workspace }}/YTSpeed
@@ -285,8 +259,6 @@ jobs:
           ${{ github.workspace }}/ytabconfig.deb \
           ${{ github.workspace }}/ytabgoodies.deb \
           ${{ github.workspace }}/youquality.deb \
-          ${{ github.workspace }}/iamyoutube.deb \
-          ${{ github.workspace }}/ytholdforspeed.deb \
           ${{ github.workspace }}/ytspeed.deb
 
       - name: Upload to GitHub Releases
