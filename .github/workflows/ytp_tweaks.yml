@@ -138,10 +138,20 @@ jobs:
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
 
-      - name: Clone YTClassicVideoQuality
+      - name: Clone YouMute
         run: |
           cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTClassicVideoQuality.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouMute.git
+
+      - name: Clone YTABGoodies
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABGoodies.git
+
+      - name: Clone YTABConfig
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
 
       - name: Clone YouQuality
         run: |
@@ -188,11 +198,27 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YTClassicVideoQuality
+      - name: Build YouMute
         run: |
-          cd ${{ github.workspace }}/YTClassicVideoQuality
+          cd ${{ github.workspace }}/YouMute
           make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytclassicvideoquality.deb
+          mv packages/*.deb ${{ github.workspace }}/youmute.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTABGoodies
+        run: |
+          cd ${{ github.workspace }}/YTABGoodies
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/ytabgoodies.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTABConfig
+        run: |
+          cd ${{ github.workspace }}/YTABConfig
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
         env:
           THEOS: ${{ github.workspace }}/theos
 
@@ -216,7 +242,9 @@ jobs:
           ${{ github.workspace }}/ryd.deb \
           ${{ github.workspace }}/donteatmycontent.deb \
           ${{ github.workspace }}/ytvideooverlay.deb \
-          ${{ github.workspace }}/ytclassicvideoquality.deb \
+          ${{ github.workspace }}/youmute.deb \
+          ${{ github.workspace }}/ytabgoodies.deb \
+          ${{ github.workspace }}/ytabconfig.deb \
           ${{ github.workspace }}/youquality.deb
 
       - name: Upload to GitHub Releases
