@@ -1,4 +1,4 @@
-name: YouTube Plus ++
+name: YouTube Plus + Tweaks
 
 on:
   workflow_dispatch:
@@ -21,19 +21,19 @@ concurrency:
 
 jobs:
   build:
-    name: Build YouTube Plus with Tweaks
+    name: Build YouTube Plus + Tweaks
     runs-on: macos-12
     permissions:
       contents: write
 
     steps:
-      - name: Checkout Main Repository
+      - name: Checkout YouTube Plus Repository and Submodules
         uses: actions/checkout@v4.1.1
         with:
           path: main
           submodules: recursive
 
-      - name: Install System Dependencies (make)
+      - name: Install System Dependencies
         run: |
           brew install make
           brew install ldid
@@ -164,7 +164,7 @@ jobs:
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouGroupSettings.git
 
-      - name: Build YouPiP
+      - name: Build YouPiP deb
         run: |
           cd ${{ github.workspace }}/YouPiP
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -172,7 +172,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YTUHD
+      - name: Build YTUHD deb
         run: |
           cd ${{ github.workspace }}/YTUHD
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -180,7 +180,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build Return-YouTube-Dislikes
+      - name: Build Return-YouTube-Dislikes deb
         run: |
           cd ${{ github.workspace }}/Return-YouTube-Dislikes
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -188,7 +188,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build DontEatMyContent
+      - name: Build DontEatMyContent deb
         run: |
           cd ${{ github.workspace }}/DontEatMyContent
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -196,7 +196,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YTABConfig
+      - name: Build YTABConfig deb
         run: |
           cd ${{ github.workspace }}/YTABConfig
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -204,7 +204,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YTABGoodies
+      - name: Build YTABGoodies deb
         run: |
           cd ${{ github.workspace }}/YTABGoodies
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -212,7 +212,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YTVideoOverlay
+      - name: Build YTVideoOverlay deb
         run: |
           cd ${{ github.workspace }}/YTVideoOverlay
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -220,7 +220,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build IAmYouTube
+      - name: Build IAmYouTube deb
         run: |
           cd ${{ github.workspace }}/IAmYouTube
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -228,7 +228,7 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Build YouGroupSettings
+      - name: Build YouGroupSettings deb
         run: |
           cd ${{ github.workspace }}/YouGroupSettings
           make clean package DEBUG=0 FINALPACKAGE=1
