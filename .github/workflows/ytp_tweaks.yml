@@ -224,6 +224,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/IAmYouTube
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls packages/
           mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
         env:
           THEOS: ${{ github.workspace }}/theos
