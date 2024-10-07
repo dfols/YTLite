@@ -168,6 +168,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YouPiP
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/youpip.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -176,6 +177,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YTUHD
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -184,6 +186,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/Return-YouTube-Dislikes
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/ryd.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -192,6 +195,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/DontEatMyContent
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/donteatmycontent.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -200,6 +204,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YTABConfig
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -208,6 +213,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YTABGoodies
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/ytabgoodies.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -216,6 +222,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YTVideoOverlay
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/ytvideooverlay.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -224,7 +231,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/IAmYouTube
           make clean package DEBUG=0 FINALPACKAGE=1
-          ls packages/
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
         env:
           THEOS: ${{ github.workspace }}/theos
@@ -233,6 +240,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/YouGroupSettings
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/yougroupsettings.deb
         env:
           THEOS: ${{ github.workspace }}/theos
