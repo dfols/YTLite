@@ -149,6 +149,21 @@ jobs:
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
 
+      - name: Clone YTVideoOverlay Repository
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
+
+      - name: Clone IAmYouTube Repository
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/IAmYouTube.git
+
+      - name: Clone YouGroupSettings Repository
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouGroupSettings.git
+
       - name: Build YouPiP
         run: |
           cd ${{ github.workspace }}/YouPiP
@@ -197,6 +212,30 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
+      - name: Build YTVideoOverlay
+        run: |
+          cd ${{ github.workspace }}/YTVideoOverlay
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/ytvideooverlay.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build IAmYouTube
+        run: |
+          cd ${{ github.workspace }}/IAmYouTube
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YouGroupSettings
+        run: |
+          cd ${{ github.workspace }}/YouGroupSettings
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/yougroupsettings.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
       - name: Inject Tweaks into IPA using Cyan
         run: |
           cyan -i ${{ github.workspace }}/youtube.ipa \
@@ -209,7 +248,10 @@ jobs:
           ${{ github.workspace }}/ryd.deb \
           ${{ github.workspace }}/donteatmycontent.deb \
           ${{ github.workspace }}/ytabconfig.deb \
-          ${{ github.workspace }}/ytabgoodies.deb
+          ${{ github.workspace }}/ytabgoodies.deb \
+          ${{ github.workspace }}/ytvideooverlay.deb \
+          ${{ github.workspace }}/iamyoutube.deb \
+          ${{ github.workspace }}/yougroupsettings.deb
 
       - name: Upload to GitHub Releases (YouTubePlus IPA)
         uses: softprops/action-gh-release@v2.0.1
