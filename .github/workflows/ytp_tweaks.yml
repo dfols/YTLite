@@ -201,7 +201,7 @@ jobs:
         run: |
           cyan -i ${{ github.workspace }}/youtube.ipa \
           -o ${{ github.workspace }}/YouTubePlus_${{ inputs.tweak_version }}_Tweaks.ipa \
-          -z -f \
+          -f \
           ${{ github.workspace }}/ytplus.deb \
           ${{ github.workspace }}/OpenYoutubeSafariExtension.appex \
           ${{ github.workspace }}/youpip.deb \
