@@ -33,8 +33,10 @@ jobs:
           path: main
           submodules: recursive
 
-      - name: Install System Dependencies (make)
-        run: brew install make
+      - name: Install System Dependencies (make and ldid)
+        run: |
+          brew install make
+          brew install ldid  # Ensure ldid is installed for code signing
 
       - name: Set up GNUBin Path
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
@@ -122,76 +124,11 @@ jobs:
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
 
-      - name: Clone YTUHD Repository
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTUHD.git
-
-      - name: Clone Return-YouTube-Dislikes Repository
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
-
-      - name: Clone DontEatMyContent Repository
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/therealFoxster/DontEatMyContent.git
-
-      - name: Clone YTABGoodies Repository
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABGoodies.git
-
-      - name: Clone YTABConfig Repository
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
-
       - name: Build YouPiP
         run: |
           cd ${{ github.workspace }}/YouPiP
           make clean package DEBUG=0 FINALPACKAGE=1
           mv packages/*.deb ${{ github.workspace }}/youpip.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTUHD
-        run: |
-          cd ${{ github.workspace }}/YTUHD
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build Return-YouTube-Dislikes
-        run: |
-          cd ${{ github.workspace }}/Return-YouTube-Dislikes
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ryd.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build DontEatMyContent
-        run: |
-          cd ${{ github.workspace }}/DontEatMyContent
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/donteatmycontent.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTABConfig
-        run: |
-          cd ${{ github.workspace }}/YTABConfig
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTABGoodies
-        run: |
-          cd ${{ github.workspace }}/YTABGoodies
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytabgoodies.deb
         env:
           THEOS: ${{ github.workspace }}/theos
 
@@ -202,12 +139,7 @@ jobs:
           -z -f \
           ${{ github.workspace }}/ytplus.deb \
           ${{ github.workspace }}/OpenYoutubeSafariExtension.appex \
-          ${{ github.workspace }}/youpip.deb \
-          ${{ github.workspace }}/ytuhd.deb \
-          ${{ github.workspace }}/ryd.deb \
-          ${{ github.workspace }}/donteatmycontent.deb \
-          ${{ github.workspace }}/ytabconfig.deb \
-          ${{ github.workspace }}/ytabgoodies.deb
+          ${{ github.workspace }}/youpip.deb
 
       - name: Upload to GitHub Releases (YouTubePlus IPA)
         uses: softprops/action-gh-release@v2.0.1
