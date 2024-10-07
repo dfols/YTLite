@@ -232,7 +232,7 @@ jobs:
           cd ${{ github.workspace }}/IAmYouTube
           make clean package DEBUG=0 FINALPACKAGE=1
           ls -lt packages/
-          mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
+          mv packages/com.ps.iamyoutube_1.3.0_iphoneos-arm.deb ${{ github.workspace }}/iamyoutube.deb
         env:
           THEOS: ${{ github.workspace }}/theos
 
