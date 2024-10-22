@@ -1,0 +1,75 @@
+name: Build and Release YouTube Tweaks
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_artifact:
+        description: "Upload artifacts (Public)"
+        default: true
+        required: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build YouTube Tweaks
+    runs-on: macos-13
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout YouTube Tweaks Repository
+        uses: actions/checkout@v4
+        with:
+          path: main
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: brew install make dpkg ldid
+
+      - name: Add GNU Make to PATH
+        run: |
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Download Theos
+        uses: actions/checkout@v4
+        with:
+          repository: theos/theos
+          ref: master
+          path: theos
+          submodules: recursive
+
+      - name: Clone YouTube Tweaks Repositories
+        run: |
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTUHD.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
+          git clone --quiet --depth=1 https://github.com/therealFoxster/DontEatMyContent.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABGoodies.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/IAmYouTube.git
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
+
+      - name: Build All YouTube Tweaks
+        run: |
+          for repo in YouPiP YTUHD Return-YouTube-Dislikes DontEatMyContent YTABGoodies YTABConfig YTVideoOverlay IAmYouTube YouQuality; do
+            cd ${{ github.workspace }}/$repo
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/${repo}.deb
+            cd ${{ github.workspace }}
+          done
+
+      - name: Create ZIP of DEBs
+        run: |
+          zip -r YouTubeTweaks.zip *.deb
+
+      - name: Upload Artifacts
+        if: ${{ inputs.upload_artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTubeTweaks
+          path: YouTubeTweaks.zip
