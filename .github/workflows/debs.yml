@@ -1,13 +1,13 @@
-name: Build and Release YouTube Tweaks
+name: YouTube Tweaks upload debs
 
 on:
   workflow_dispatch:
     inputs:
-      upload_artifact:
-        description: "Upload artifacts (Public)"
-        default: true
-        required: false
-        type: boolean
+      tweak_version:
+        description: "Version number for the tweaks"
+        default: "1.0"
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,129 +16,225 @@ concurrency:
 jobs:
   build:
     name: Build YouTube Tweaks
-    runs-on: macos-13
+    runs-on: macos-12
     permissions:
       contents: write
 
     steps:
-      - name: Checkout YouTube Tweaks Repository
-        uses: actions/checkout@v4
+      - name: Checkout Repository and Submodules
+        uses: actions/checkout@v4.1.1
         with:
           path: main
           submodules: recursive
 
-      - name: Install Dependencies
-        run: brew install make dpkg ldid
-
-      - name: Add GNU Make to PATH
+      - name: Install System Dependencies
         run: |
-          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+          brew install make
+          brew install ldid
 
-      - name: Download Theos
-        uses: actions/checkout@v4
+      - name: Set up GNUBin Path
+        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
+
+      - name: Cache Theos Directory
+        id: theos
+        uses: actions/cache@v4.0.1
+        env:
+          cache-name: theos_cache
+        with:
+          path: theos/
+          key: ${{ env.cache-name }}
+          restore-keys: ${{ env.cache-name }}
+
+      - name: Set up Theos from Repository (if no cache)
+        if: steps.theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4.1.7
         with:
           repository: theos/theos
-          ref: master
-          path: theos
+          ref: 3da31488281ecf4394d10302d2629607f4a1aa07
+          path: ${{ github.workspace }}/theos
           submodules: recursive
+
+      - name: Download and Set Up iOS SDK (iPhoneOS13.7)
+        if: steps.theos.outputs.cache-hit != 'true'
+        run: |
+          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/theos/sdks/
+          cd sdks
+          git sparse-checkout set --no-cone iPhoneOS13.7.sdk
+          git checkout
+          mv *.sdk $THEOS/sdks
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Clone Safari Extension (Open in YouTube)
+        run: |
+          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/CokePokes/YoutubeExtensions/
+          cd YoutubeExtensions
+          git sparse-checkout set --no-cone OpenYoutubeSafariExtension.appex
+          git checkout
+          mv *.appex ${{ github.workspace }}
+
+      - name: Clone YouTubeHeader
+        run: |
+          THEOS_INCLUDE="$THEOS/include"
+          cd "$THEOS_INCLUDE"
+          
+          if [ ! -d "YouTubeHeader" ]; then
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
+            echo "Cloned YouTubeHeader."
+          else
+            echo "YouTubeHeader already exists."
+          fi
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Create YTHeaders Symlink
+        run: |
+          THEOS_INCLUDE="$THEOS/include"
+          cd "$THEOS_INCLUDE"
+          
+          if [ ! -e "YTHeaders" ]; then
+            ln -s YouTubeHeader YTHeaders
+            echo "Created symlink YTHeaders -> YouTubeHeader."
+          else
+            echo "YTHeaders symlink already exists."
+          fi
+        env:
+          THEOS: ${{ github.workspace }}/theos
 
       - name: Clone YouPiP Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
-
-      - name: Build YouPiP
-        run: |
-          cd ${{ github.workspace }}/YouPiP
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/youpip.deb
 
       - name: Clone YTUHD Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTUHD.git
-
-      - name: Build YTUHD
-        run: |
-          cd ${{ github.workspace }}/YTUHD
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
 
       - name: Clone Return-YouTube-Dislikes Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
-
-      - name: Build Return-YouTube-Dislikes
-        run: |
-          cd ${{ github.workspace }}/Return-YouTube-Dislikes
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ryd.deb
 
       - name: Clone DontEatMyContent Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/therealFoxster/DontEatMyContent.git
-
-      - name: Build DontEatMyContent
-        run: |
-          cd ${{ github.workspace }}/DontEatMyContent
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/donteatmycontent.deb
 
       - name: Clone YTABGoodies Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTABGoodies.git
-
-      - name: Build YTABGoodies
-        run: |
-          cd ${{ github.workspace }}/YTABGoodies
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytabgoodies.deb
 
       - name: Clone YTABConfig Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
-
-      - name: Build YTABConfig
-        run: |
-          cd ${{ github.workspace }}/YTABConfig
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
 
       - name: Clone YTVideoOverlay Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
-
-      - name: Build YTVideoOverlay
-        run: |
-          cd ${{ github.workspace }}/YTVideoOverlay
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytvideooverlay.deb
 
       - name: Clone IAmYouTube Repository
         run: |
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/IAmYouTube.git
-
-      - name: Build IAmYouTube
-        run: |
-          cd ${{ github.workspace }}/IAmYouTube
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/iamyoutube.deb
 
       - name: Clone YouQuality Repository
         run: |
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality
 
-      - name: Build YouQuality
+      - name: Build YouPiP deb
+        run: |
+          cd ${{ github.workspace }}/YouPiP
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/youpip.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTUHD deb
+        run: |
+          cd ${{ github.workspace }}/YTUHD
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build Return-YouTube-Dislikes deb
+        run: |
+          cd ${{ github.workspace }}/Return-YouTube-Dislikes
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/ryd.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build DontEatMyContent deb
+        run: |
+          cd ${{ github.workspace }}/DontEatMyContent
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/donteatmycontent.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTABConfig deb
+        run: |
+          cd ${{ github.workspace }}/YTABConfig
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/ytabconfig.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTABGoodies deb
+        run: |
+          cd ${{ github.workspace }}/YTABGoodies
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/ytabgoodies.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YTVideoOverlay deb
+        run: |
+          cd ${{ github.workspace }}/YTVideoOverlay
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/*.deb ${{ github.workspace }}/ytvideooverlay.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build IAmYouTube deb
+        run: |
+          cd ${{ github.workspace }}/IAmYouTube
+          make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
+          mv packages/com.ps.iamyoutube_1.3.0_iphoneos-arm.deb ${{ github.workspace }}/iamyoutube.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Build YouQuality deb
         run: |
           cd ${{ github.workspace }}/YouQuality
           make clean package DEBUG=0 FINALPACKAGE=1
+          ls -lt packages/
           mv packages/*.deb ${{ github.workspace }}/youquality.deb
+        env:
+          THEOS: ${{ github.workspace }}/theos
 
-      - name: Create ZIP of DEBs
+      - name: Zip deb files and extension
         run: |
-          zip -r YouTubeTweaks.zip *.deb
+          zip tweaks_${{ inputs.tweak_version }}.zip *.deb OpenYoutubeSafariExtension.appex
 
-      - name: Upload Artifacts
-        if: ${{ inputs.upload_artifact }}
-        uses: actions/upload-artifact@v4
+      - name: Upload to GitHub Releases (Tweaks Zip)
+        uses: softprops/action-gh-release@v2.0.1
         with:
-          name: YouTubeTweaks
-          path: YouTubeTweaks.zip
+          tag_name: v${{ github.run_number }}
+          name: YouTube Tweaks v${{ inputs.tweak_version }} (${{ github.run_number }})
+          files: tweaks_${{ inputs.tweak_version }}.zip
+          draft: true
